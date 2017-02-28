@@ -1,8 +1,6 @@
 title: The first example post
-date: 2017-02-28 20:00:00 +01:00
+time: 20:00:00
 categories: Sample, Demo
-
----
 
 An h1 header
 ============
