@@ -1,3 +1,8 @@
+extern crate dotenv;
+
+use dotenv::dotenv;
+use std::env;
+
 fn main() {
-    println!("Hello, world!");
+    dotenv().ok();
 }
