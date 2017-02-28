@@ -17,6 +17,7 @@ lazy_static! {
 
 mod generator;
 mod io;
+mod parser;
 
 fn main() {
     dotenv().ok();

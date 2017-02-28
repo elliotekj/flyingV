@@ -19,6 +19,7 @@ pub fn generate() {
         if is_hidden(&entry) || !is_valid_format(&entry) { continue; }
 
         let content = io::read(&entry.path());
+        parser::post(content);
         // println!("{}", content);
     }
 
