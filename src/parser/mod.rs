@@ -64,7 +64,7 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
 fn separate_target(view_string: String) -> Result<(String, String), Error> {
     if let Some(target_len) = view_string.find("\n") {
         let target_string = &view_string[..target_len];
-        let template_string = &view_string[target_len..];
+        let template_string = &view_string[target_len+1..]; // +1 to clear out the remaining \n
 
         return Ok((target_string.to_owned(), template_string.to_owned()));
     }

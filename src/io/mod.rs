@@ -38,3 +38,9 @@ pub fn write(path: &Path, contents: String) {
     let mut file = BufWriter::new(file);
     file.write_all(contents.as_bytes()).expect("Unable to write data to file");
 }
+
+pub fn simple_write(path: &Path, contents: String) {
+    let file = File::create(path).expect("Unable to create the file");
+    let mut file = BufWriter::new(file);
+    file.write_all(contents.as_bytes()).expect("Unable to write data to file");
+}
