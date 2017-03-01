@@ -18,26 +18,32 @@ pub fn generate() {
         let entry = entry.unwrap();
         if is_hidden(&entry) || !is_valid_format(&entry) { continue; }
 
-        let content = io::read(&entry.path());
+        let content = io::read(entry.path());
         if let Ok(page) = parser::page(content) {
             let mut page_context = context.clone();
             page_context.add("page", &page.frontmatter);
             page_context.add("content", &page.content);
-            render(page_context);
+
+            if let Some(rendered) = render(page_context) {
+                io::write(entry.path(), rendered);
+            }
         };
     }
 }
 
-fn render(context: Context) {
+fn render(context: Context) -> Option<String> {
     match TEMPLATES.render("views/post.html", context) {
-        Ok(s) => println!("{:?}", s),
+        Ok(html) => Some(html),
         Err(e) => {
             println!("Error: {}", e);
+
             for e in e.iter().skip(1) {
                 println!("Reason: {}", e);
             }
+
+            None
         }
-    };
+    }
 }
 
 fn is_hidden(entry: &DirEntry) -> bool {

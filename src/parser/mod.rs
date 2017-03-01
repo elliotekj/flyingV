@@ -26,7 +26,7 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
         let content = &page_string[frontmatter_len..];
         let frontmatter = parse_frontmatter(frontmatter_string);
 
-        if frontmatter.len() > 0 {
+        if frontmatter.is_empty() {
             return Ok((frontmatter, content.to_owned()));
         }
     }
@@ -36,12 +36,12 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
 
 fn parse_frontmatter(frontmatter_string: &str) -> HashMap<String, String> {
     let mut frontmatter = HashMap::new();
-    let mut frontmatter_lines = frontmatter_string.lines();
+    let frontmatter_lines = frontmatter_string.lines();
 
-    while let Some(line) = frontmatter_lines.next() {
+    for line in frontmatter_lines {
         let key_value: Vec<&str> = line.split(':').collect();
         frontmatter.insert(key_value[0].trim().to_string(), key_value[1].trim().to_string());
-    };
+    }
 
     frontmatter
 }
