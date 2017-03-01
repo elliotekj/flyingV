@@ -19,15 +19,17 @@ pub fn generate() {
         if is_hidden(&entry) || !is_valid_format(&entry) { continue; }
 
         let content = io::read(&entry.path());
-        parser::post(content);
-        // println!("{}", content);
+        if let Ok(page) = parser::page(content) {
+            let mut page_context = context.clone();
+            page_context.add("page", &page.frontmatter);
+            page_context.add("content", &page.content);
+            render(page_context);
+        };
     }
-
-    render(context);
 }
 
 fn render(context: Context) {
-    match TEMPLATES.render("views/index.html", context) {
+    match TEMPLATES.render("views/post.html", context) {
         Ok(s) => println!("{:?}", s),
         Err(e) => {
             println!("Error: {}", e);
