@@ -1,12 +1,20 @@
 use cmark::html::push_html;
 use cmark::Parser;
+use globset::Glob;
 use serde_json::{self, Value};
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 
+#[derive(Debug)]
 pub struct Page {
     pub frontmatter: Value,
     pub content: String,
+}
+
+#[derive(Debug)]
+pub struct View {
+    pub target: Glob,
+    pub template: String,
 }
 
 pub fn page(page_string: String, is_markdown: bool) -> Result<Page, Error> {
@@ -26,6 +34,19 @@ pub fn page(page_string: String, is_markdown: bool) -> Result<Page, Error> {
     Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a page"))
 }
 
+pub fn view(view_string: String) -> Result<View, Error> {
+    if let Ok((mut target, template)) = separate_target(view_string) {
+        let view = View {
+            target: parse_target(&mut target).unwrap(),
+            template: template,
+        };
+
+        return Ok(view);
+    }
+
+    Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a view"))
+}
+
 fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>, String), Error> {
     if let Some(frontmatter_len) = page_string.find("\n\n") {
         let frontmatter_string = &page_string[..frontmatter_len];
@@ -35,6 +56,17 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
         if !frontmatter.is_empty() {
             return Ok((frontmatter, content.to_owned()));
         }
+    }
+
+    Err(Error::new(ErrorKind::InvalidInput, "Failed to build due to missing frontmatter"))
+}
+
+fn separate_target(view_string: String) -> Result<(String, String), Error> {
+    if let Some(target_len) = view_string.find("\n") {
+        let target_string = &view_string[..target_len];
+        let template_string = &view_string[target_len..];
+
+        return Ok((target_string.to_owned(), template_string.to_owned()));
     }
 
     Err(Error::new(ErrorKind::InvalidInput, "Failed to build due to missing frontmatter"))
@@ -57,4 +89,20 @@ fn parse_markdown(md: &str) -> String {
     let mut html = String::new();
     push_html(&mut html, parser);
     html
+}
+
+fn parse_target(target: &mut String) -> Result<Glob, Error> {
+    if let Some(markup_start_len) = target.find("\"") {
+        *target = target[markup_start_len+1..].to_owned();
+    }
+
+    if let Some(markup_end_len) = target.find("\"") {
+        *target = target[..markup_end_len].to_owned();
+    }
+
+    if let Ok(target_glob) = Glob::new(target) {
+        return Ok(target_glob);
+    };
+
+    Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a glob"))
 }
