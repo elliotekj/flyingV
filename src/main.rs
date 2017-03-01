@@ -21,6 +21,7 @@ lazy_static! {
 mod generator;
 mod io;
 mod parser;
+mod utils;
 mod views;
 
 fn main() {
