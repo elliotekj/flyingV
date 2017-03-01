@@ -6,6 +6,7 @@ authors = ["Elliot Jackson <elliotekj@gmail.com>"]
 [dependencies]
 dotenv = "0.8.0"
 lazy_static = "0.2.2"
+pulldown-cmark = "0.0.8"
 serde_json = "0.9.8"
 tera = "0.7.2"
 walkdir = "1.0.7"

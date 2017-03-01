@@ -1,3 +1,5 @@
+use cmark::html::push_html;
+use cmark::Parser;
 use serde_json::{self, Value};
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
@@ -7,8 +9,12 @@ pub struct Page {
     pub content: String,
 }
 
-pub fn page(page_string: String) -> Result<Page, Error> {
-    if let Ok((frontmatter, content)) = separate_frontmatter(page_string) {
+pub fn page(page_string: String, is_markdown: bool) -> Result<Page, Error> {
+    if let Ok((frontmatter, mut content)) = separate_frontmatter(page_string) {
+        if is_markdown {
+            content = parse_markdown(&content);
+        }
+
         let page = Page {
             frontmatter: serde_json::to_value(&frontmatter).unwrap(),
             content: content,
@@ -44,4 +50,11 @@ fn parse_frontmatter(frontmatter_string: &str) -> HashMap<String, String> {
     }
 
     frontmatter
+}
+
+fn parse_markdown(md: &str) -> String {
+    let parser = Parser::new(md);
+    let mut html = String::new();
+    push_html(&mut html, parser);
+    html
 }

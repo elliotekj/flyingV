@@ -19,7 +19,7 @@ pub fn generate() {
         if is_hidden(&entry) || !is_valid_format(&entry) { continue; }
 
         let content = io::read(entry.path());
-        if let Ok(page) = parser::page(content) {
+        if let Ok(page) = parser::page(content, is_markdown(&entry)) {
             let mut page_context = context.clone();
             page_context.add("page", &page.frontmatter);
             page_context.add("content", &page.content);
@@ -67,4 +67,14 @@ fn is_valid_format(entry: &DirEntry) -> bool {
         }
         _ => false,
     }
+}
+
+fn is_markdown(entry: &DirEntry) -> bool {
+    let extension = entry.path().extension().unwrap();
+
+    if extension == "markdown" || extension == "md" {
+        return true;
+    }
+
+    false
 }
