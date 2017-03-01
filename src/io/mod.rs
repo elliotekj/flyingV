@@ -13,21 +13,28 @@ pub fn read(path: &Path) -> String {
 }
 
 pub fn write(path: &Path, contents: String) {
+    // Get the path components:
     let build_path_str = &BUILD_PATH.as_str();
     let file_path_str = &path.to_str().unwrap()[*&CONTENT_PATH.len()..];
 
-    let final_path_str = format!("{}{}", build_path_str, file_path_str);
-    let mut final_path = PathBuf::from(final_path_str);
-    final_path.set_extension("html");
+    // Build the dir tree for the file:
+    let file_parent = Path::new(file_path_str).parent().unwrap();
+    let file_stem = path.file_stem().unwrap();
+    let file_tree: PathBuf;
 
-    if let Some(file_tree) = Path::new(file_path_str).parent() {
-        let file_tree_str = format!("{}{}", build_path_str, file_tree.to_str().unwrap());
-        let file_tree = Path::new(&file_tree_str);
+    // Write the dir tree for the file:
+    if file_parent == Path::new("/") && file_stem == "index" {
+        let file_tree_str = format!("{}{}/index.html", build_path_str, file_parent.to_str().unwrap());
+        file_tree = PathBuf::from(&file_tree_str);
+        let _ = fs::create_dir_all(Path::new(build_path_str));
+    } else {
+        let file_tree_str = format!("{}{}/{}/index.html", build_path_str, file_parent.to_str().unwrap(), file_stem.to_str().unwrap());
+        file_tree = PathBuf::from(&file_tree_str);
+        let _ = fs::create_dir_all(file_tree.parent().unwrap());
+    }
 
-        let _ = fs::create_dir_all(file_tree);
-    };
-
-    let file = File::create(final_path).expect("Unable to create the file");
+    // Write the file:
+    let file = File::create(file_tree).expect("Unable to create the file");
     let mut file = BufWriter::new(file);
     file.write_all(contents.as_bytes()).expect("Unable to write data to file");
 }
