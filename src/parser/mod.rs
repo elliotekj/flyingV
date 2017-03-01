@@ -15,9 +15,9 @@ pub fn page(page_string: String) -> Result<Page, Error> {
         };
 
         return Ok(page);
-    } else {
-        Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a page"))
     }
+
+    Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a page"))
 }
 
 fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>, String), Error> {
@@ -26,7 +26,7 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
         let content = &page_string[frontmatter_len..];
         let frontmatter = parse_frontmatter(frontmatter_string);
 
-        if frontmatter.is_empty() {
+        if !frontmatter.is_empty() {
             return Ok((frontmatter, content.to_owned()));
         }
     }

@@ -1,7 +1,7 @@
-use BUILD_PATH;
 use std::fs::{self, File};
 use std::io::{Read, BufReader, Write, BufWriter};
 use std::path::{Path, PathBuf};
+use super::*;
 
 pub fn read(path: &Path) -> String {
     let mut contents = String::new();
@@ -13,15 +13,21 @@ pub fn read(path: &Path) -> String {
 }
 
 pub fn write(path: &Path, contents: String) {
-    let build_path = PathBuf::from(&BUILD_PATH.as_str());
-    let mut file_path = PathBuf::from(build_path.join(path));
-    file_path.set_extension("html");
+    let build_path_str = &BUILD_PATH.as_str();
+    let file_path_str = &path.to_str().unwrap()[*&CONTENT_PATH.len()..];
 
-    if let Some(dirpath) = path.parent() {
-        let _ = fs::create_dir_all(build_path.join(&dirpath));
+    let final_path_str = format!("{}{}", build_path_str, file_path_str);
+    let mut final_path = PathBuf::from(final_path_str);
+    final_path.set_extension("html");
+
+    if let Some(file_tree) = Path::new(file_path_str).parent() {
+        let file_tree_str = format!("{}{}", build_path_str, file_tree.to_str().unwrap());
+        let file_tree = Path::new(&file_tree_str);
+
+        let _ = fs::create_dir_all(file_tree);
     };
 
-    let file = File::create(file_path).expect("Unable to create the file");
+    let file = File::create(final_path).expect("Unable to create the file");
     let mut file = BufWriter::new(file);
     file.write_all(contents.as_bytes()).expect("Unable to write data to file");
 }
