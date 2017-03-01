@@ -7,6 +7,8 @@ extern crate pulldown_cmark as cmark;
 extern crate walkdir;
 
 use dotenv::dotenv;
+use globset::GlobMatcher;
+use std::collections::HashMap;
 use std::env;
 use tera::Tera;
 
@@ -14,7 +16,7 @@ lazy_static! {
     pub static ref BUILD_PATH: String = env::var("BUILD_PATH").unwrap();
     pub static ref CONTENT_PATH: String = env::var("CONTENT_PATH").unwrap();
     pub static ref SITE_NAME: String = env::var("SITE_NAME").unwrap();
-    pub static ref TEMPLATES: Tera = views::get();
+    pub static ref TEMPLATES: (HashMap<String, GlobMatcher>, Tera) = views::get();
     pub static ref THEME_PATH: String = env::var("THEME_PATH").unwrap();
 }
 

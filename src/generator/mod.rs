@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use super::*;
 use tera::Context;
 use walkdir::WalkDir;
@@ -18,21 +18,32 @@ pub fn generate() {
         let entry = entry.unwrap();
         if utils::is_dotfile(&entry) || !utils::is_valid_file_format(&entry) { continue; }
 
+        let file_path_str = &entry.path().to_str().unwrap()[*&CONTENT_PATH.len()+1..];
+        let file_path = Path::new(&file_path_str);
         let content = io::read(entry.path());
+
         if let Ok(page) = parser::page(content, utils::is_markdown_file(&entry)) {
             let mut page_context = context.clone();
             page_context.add("page", &page.frontmatter);
             page_context.add("content", &page.content);
 
-            if let Some(rendered) = render(page_context) {
-                io::write(entry.path(), rendered);
+            for view_template in &TEMPLATES.0 {
+                if view_template.1.is_match(file_path) {
+                    println!("{:?}", file_path);
+                    println!("{:?}", view_template);
+
+                    if let Some(rendered) = render(page_context.clone(), view_template.0) {
+                        io::write(entry.path(), rendered);
+                        break;
+                    }
+                }
             }
         };
     }
 }
 
-fn render(context: Context) -> Option<String> {
-    match TEMPLATES.render("views/post.html", context) {
+fn render(context: Context, template: &str) -> Option<String> {
+    match TEMPLATES.1.render(template, context) {
         Ok(html) => Some(html),
         Err(e) => {
             println!("Error: {}", e);

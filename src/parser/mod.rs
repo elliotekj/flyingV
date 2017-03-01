@@ -1,6 +1,6 @@
 use cmark::html::push_html;
 use cmark::Parser;
-use globset::Glob;
+use globset::{Glob, GlobMatcher};
 use serde_json::{self, Value};
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
@@ -13,7 +13,7 @@ pub struct Page {
 
 #[derive(Debug)]
 pub struct View {
-    pub target: Glob,
+    pub target: GlobMatcher,
     pub template: String,
 }
 
@@ -91,7 +91,7 @@ fn parse_markdown(md: &str) -> String {
     html
 }
 
-fn parse_target(target: &mut String) -> Result<Glob, Error> {
+fn parse_target(target: &mut String) -> Result<GlobMatcher, Error> {
     if let Some(markup_start_len) = target.find("\"") {
         *target = target[markup_start_len+1..].to_owned();
     }
@@ -101,7 +101,7 @@ fn parse_target(target: &mut String) -> Result<Glob, Error> {
     }
 
     if let Ok(target_glob) = Glob::new(target) {
-        return Ok(target_glob);
+        return Ok(target_glob.compile_matcher());
     };
 
     Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a glob"))
