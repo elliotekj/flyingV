@@ -18,7 +18,7 @@ pub fn generate() {
         let entry = entry.unwrap();
         if utils::is_dotfile(&entry) || !utils::is_valid_file_format(&entry) { continue; }
 
-        let file_path_str = &entry.path().to_str().unwrap()[*&CONTENT_PATH.len()+1..];
+        let file_path_str = &entry.path().to_str().unwrap()[CONTENT_PATH.len()+1..];
         let file_path = Path::new(&file_path_str);
         let content = io::read(entry.path());
 
@@ -29,9 +29,6 @@ pub fn generate() {
 
             for view_template in &TEMPLATES.0 {
                 if view_template.1.is_match(file_path) {
-                    println!("{:?}", file_path);
-                    println!("{:?}", view_template);
-
                     if let Some(rendered) = render(page_context.clone(), view_template.0) {
                         io::write(entry.path(), rendered);
                         break;

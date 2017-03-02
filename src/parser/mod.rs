@@ -62,7 +62,7 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
 }
 
 fn separate_target(view_string: String) -> Result<(String, String), Error> {
-    if let Some(target_len) = view_string.find("\n") {
+    if let Some(target_len) = view_string.find('\n') {
         let target_string = &view_string[..target_len];
         let template_string = &view_string[target_len+1..]; // +1 to clear out the remaining \n
 
@@ -92,11 +92,11 @@ fn parse_markdown(md: &str) -> String {
 }
 
 fn parse_target(target: &mut String) -> Result<GlobMatcher, Error> {
-    if let Some(markup_start_len) = target.find("\"") {
+    if let Some(markup_start_len) = target.find('"') {
         *target = target[markup_start_len+1..].to_owned();
     }
 
-    if let Some(markup_end_len) = target.find("\"") {
+    if let Some(markup_end_len) = target.find('"') {
         *target = target[..markup_end_len].to_owned();
     }
 

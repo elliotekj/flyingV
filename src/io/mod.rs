@@ -15,7 +15,7 @@ pub fn read(path: &Path) -> String {
 pub fn write(path: &Path, contents: String) {
     // Get the path components:
     let build_path_str = &BUILD_PATH.as_str();
-    let file_path_str = &path.to_str().unwrap()[*&CONTENT_PATH.len()..];
+    let file_path_str = &path.to_str().unwrap()[CONTENT_PATH.len()..];
 
     // Build the dir tree for the file:
     let file_parent = Path::new(file_path_str).parent().unwrap();

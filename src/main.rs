@@ -1,9 +1,9 @@
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde_json;
-#[macro_use] extern crate tera;
 extern crate dotenv;
 extern crate globset;
 extern crate pulldown_cmark as cmark;
+extern crate tera;
 extern crate walkdir;
 
 use dotenv::dotenv;
