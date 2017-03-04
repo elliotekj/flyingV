@@ -4,31 +4,15 @@ use globset::{Glob, GlobMatcher};
 use serde_json::{self, Value};
 use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
+use super::*;
 
-#[derive(Debug)]
-pub struct Page {
-    pub frontmatter: Value,
-    pub content: String,
-}
-
-#[derive(Debug)]
-pub struct View {
-    pub target: GlobMatcher,
-    pub template: String,
-}
-
-pub fn page(page_string: String, is_markdown: bool) -> Result<Page, Error> {
+pub fn page(page_string: String, is_markdown: bool) -> Result<(Value, String), Error> {
     if let Ok((frontmatter, mut content)) = separate_frontmatter(page_string) {
         if is_markdown {
             content = parse_markdown(&content);
         }
 
-        let page = Page {
-            frontmatter: serde_json::to_value(&frontmatter).unwrap(),
-            content: content,
-        };
-
-        return Ok(page);
+        return Ok((serde_json::to_value(&frontmatter).unwrap(), content));
     }
 
     Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a page"))

@@ -8,15 +8,30 @@ extern crate walkdir;
 
 use dotenv::dotenv;
 use globset::GlobMatcher;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::env;
 use tera::Tera;
+
+#[derive(Debug)]
+pub struct Page {
+    pub frontmatter: Value,
+    pub content: String,
+    pub original_path_string: String,
+}
+
+#[derive(Debug)]
+pub struct View {
+    pub target: GlobMatcher,
+    pub template: String,
+}
 
 lazy_static! {
     pub static ref BUILD_PATH: String = env::var("BUILD_PATH").unwrap();
     pub static ref CONTENT_PATH: String = env::var("CONTENT_PATH").unwrap();
     pub static ref SITE_NAME: String = env::var("SITE_NAME").unwrap();
-    pub static ref TEMPLATES: (HashMap<String, GlobMatcher>, Tera) = views::get();
+    pub static ref TEMPLATE_PATH_DATA: HashMap<String, GlobMatcher> = views::get_path_data();
+    pub static ref TEMPLATES: Tera = views::get();
     pub static ref THEME_PATH: String = env::var("THEME_PATH").unwrap();
 }
 

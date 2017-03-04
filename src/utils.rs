@@ -1,6 +1,6 @@
 use walkdir::DirEntry;
 
-pub fn is_dotfile(entry: &DirEntry) -> bool {
+pub fn is_hidden_file(entry: &DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
