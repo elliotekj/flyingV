@@ -3,11 +3,13 @@
 extern crate dotenv;
 extern crate globset;
 extern crate pulldown_cmark as cmark;
+extern crate regex;
 extern crate tera;
 extern crate walkdir;
 
 use dotenv::dotenv;
 use globset::GlobMatcher;
+use regex::Regex;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::env;
@@ -24,6 +26,7 @@ pub struct Page {
 pub struct View {
     pub target: GlobMatcher,
     pub template: String,
+    pub custom_loops: HashMap<String, String>,
 }
 
 lazy_static! {
@@ -33,6 +36,7 @@ lazy_static! {
     pub static ref TEMPLATE_PATH_DATA: HashMap<String, GlobMatcher> = views::get_path_data();
     pub static ref TEMPLATES: Tera = views::get();
     pub static ref THEME_PATH: String = env::var("THEME_PATH").unwrap();
+    pub static ref GLOB_FOR_LOOP_REGEX: Regex = Regex::new(r#"(\{%\sfor\s\w*\sin)\s("[^\s]*")\s(%})"#).unwrap();
 }
 
 mod generator;
