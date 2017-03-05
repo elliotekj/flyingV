@@ -1,4 +1,3 @@
-use globset::GlobMatcher;
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -6,7 +5,7 @@ use super::*;
 use tera::Tera;
 use walkdir::WalkDir;
 
-pub fn get() -> Tera {
+pub fn get_tera() -> Tera {
     let mut tera = Tera::default();
     let theme_dir = PathBuf::from(&THEME_PATH.as_str());
     let theme_dir_walker = WalkDir::new(theme_dir).into_iter();
@@ -28,7 +27,7 @@ pub fn get() -> Tera {
     tera
 }
 
-pub fn get_path_data() -> HashMap<String, GlobMatcher> {
+pub fn get_data() -> HashMap<String, View> {
     // key: the path in which Tera should look for the template
     // value: a glob ← any file in the contents that matches that glob should be rendered with the
     // template passed as the key.
@@ -53,8 +52,8 @@ pub fn get_path_data() -> HashMap<String, GlobMatcher> {
             let tera_path_str = format!("{}/{}.html", &tmp_dir.to_str().unwrap()[THEME_PATH.len()+1..], path_stem);
             let tmp_path_str = format!("{}/{}.html", tmp_dir.to_str().unwrap(), path_stem);
 
-            path_data.insert(tera_path_str.to_string(), view.target);
-            io::simple_write(Path::new(&tmp_path_str), view.template);
+            io::simple_write(Path::new(&tmp_path_str), view.template.as_str());
+            path_data.insert(tera_path_str.to_string(), view);
         }
     }
 

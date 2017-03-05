@@ -40,13 +40,13 @@ fn extract_custom_loops(template: &mut String) -> (String, HashMap<String, Strin
     let mut custom_loop_count: u32 = 0;
 
     *template = GLOB_FOR_LOOP_REGEX.replace_all(template, |captures: &Captures| {
-        let glob = captures.get(2).map_or("", |m| m.as_str()).to_string();
+        let glob = captures.get(3).map_or("", |m| m.as_str()).to_string();
         let id = format!("__CUSTOM_LOOP_{}__", custom_loop_count);
 
         custom_loops.insert(glob, id.clone());
         custom_loop_count += 1;
 
-        return format!("{} {} {}", captures.get(1).map_or("", |m| m.as_str()), id, captures.get(3).map_or("", |m| m.as_str()));
+        return format!("{} {} {}", captures.get(1).map_or("", |m| m.as_str()), id, captures.get(5).map_or("", |m| m.as_str()));
     }).into_owned();
 
     (template.to_string(), custom_loops)

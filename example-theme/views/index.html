@@ -5,5 +5,6 @@
 <h1>Some title</h1>
 
 {% for post in "20*/**/*" %}
+  <h3>{{ post.frontmatter.title }}</h3>
 {% endfor %}
 {% endblock content %}
