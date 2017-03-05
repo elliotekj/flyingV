@@ -28,9 +28,9 @@ pub fn get_tera() -> Tera {
 }
 
 pub fn get_data() -> HashMap<String, View> {
-    // key: the path in which Tera should look for the template
-    // value: a glob ← any file in the contents that matches that glob should be rendered with the
-    // template passed as the key.
+    // key: the path in which Tera should look for the view
+    // value: a glob ← any file in the contents path that matches that glob
+    // should be rendered with the view passed as the key.
     let mut path_data = HashMap::new();
 
     let views_dir = PathBuf::from(&THEME_PATH.as_str()).join("views");
@@ -52,7 +52,7 @@ pub fn get_data() -> HashMap<String, View> {
             let tera_path_str = format!("{}/{}.html", &tmp_dir.to_str().unwrap()[THEME_PATH.len()+1..], path_stem);
             let tmp_path_str = format!("{}/{}.html", tmp_dir.to_str().unwrap(), path_stem);
 
-            io::simple_write(Path::new(&tmp_path_str), view.template.as_str());
+            io::simple_write(Path::new(&tmp_path_str), view.html.as_str());
             path_data.insert(tera_path_str.to_string(), view);
         }
     }

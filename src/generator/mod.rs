@@ -6,10 +6,10 @@ use tera::Context;
 use walkdir::WalkDir;
 
 pub fn generate() {
-    let content = map_sites_content();
-    let context = get_sites_context();
+    let mapped_site_content = map_sites_content();
+    let tera_context = get_sites_context();
 
-    render_from_views(content, context);
+    render_from_views(mapped_site_content, tera_context);
 }
 
 fn map_sites_content() -> HashMap<String, Page> {
@@ -38,24 +38,24 @@ fn map_sites_content() -> HashMap<String, Page> {
 }
 
 fn get_sites_context() -> Context {
-    let mut context = Context::new();
+    let mut tera_context = Context::new();
 
     let site = json!({
         "name": *SITE_NAME,
     });
 
-    context.add("site", &site);
+    tera_context.add("site", &site);
 
-    context
+    tera_context
 }
 
-fn render_from_views(content: HashMap<String, Page>, context: Context) {
-    for view in TEMPLATE_DATA.iter() {
+fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: Context) {
+    for view in VIEW_DATA.iter() {
         let view_data = view.1;
 
-        for page in &content {
+        for page in &mapped_site_content {
             if view_data.target.is_match(page.0) {
-                let mut page_context = context.clone();
+                let mut page_context = tera_context.clone();
                 page_context.add("page", &page.1.frontmatter);
                 page_context.add("content", &page.1.content);
 
@@ -63,7 +63,7 @@ fn render_from_views(content: HashMap<String, Page>, context: Context) {
                     let glob = Glob::new(custom_loop.0).unwrap().compile_matcher();
                     let mut loop_data = Vec::new();
 
-                    for page_data in &content {
+                    for page_data in &mapped_site_content {
                         if glob.is_match(page_data.0) {
                             loop_data.push(page_data.1);
                         }
@@ -80,8 +80,8 @@ fn render_from_views(content: HashMap<String, Page>, context: Context) {
     }
 }
 
-fn render(context: Context, template: &str) -> Option<String> {
-    match TEMPLATES.render(template, context) {
+fn render(page_context: Context, view_path_str: &str) -> Option<String> {
+    match TERA.render(view_path_str, page_context) {
         Ok(html) => Some(html),
         Err(e) => {
             println!("Error: {}", e);

@@ -20,12 +20,12 @@ pub fn page(page_string: String, is_markdown: bool) -> Result<(Value, String), E
 }
 
 pub fn view(view_string: String) -> Result<View, Error> {
-    if let Ok((mut target, mut template)) = separate_target(view_string) {
-        let (template, custom_loop_values) = extract_custom_loops(&mut template);
+    if let Ok((mut target, mut html)) = separate_target(view_string) {
+        let (html, custom_loop_values) = extract_custom_loops(&mut html);
 
         let view = View {
             target: parse_target(&mut target).unwrap(),
-            template: template,
+            html: html,
             custom_loops: custom_loop_values,
         };
 
@@ -35,11 +35,11 @@ pub fn view(view_string: String) -> Result<View, Error> {
     Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a view"))
 }
 
-fn extract_custom_loops(template: &mut String) -> (String, HashMap<String, String>) {
+fn extract_custom_loops(html: &mut String) -> (String, HashMap<String, String>) {
     let mut custom_loops = HashMap::new();
     let mut custom_loop_count: u32 = 0;
 
-    *template = GLOB_FOR_LOOP_REGEX.replace_all(template, |captures: &Captures| {
+    *html = GLOB_FOR_LOOP_REGEX.replace_all(html, |captures: &Captures| {
         let glob = captures.get(3).map_or("", |m| m.as_str()).to_string();
         let id = format!("__CUSTOM_LOOP_{}__", custom_loop_count);
 
@@ -49,7 +49,7 @@ fn extract_custom_loops(template: &mut String) -> (String, HashMap<String, Strin
         return format!("{} {} {}", captures.get(1).map_or("", |m| m.as_str()), id, captures.get(5).map_or("", |m| m.as_str()));
     }).into_owned();
 
-    (template.to_string(), custom_loops)
+    (html.to_string(), custom_loops)
 }
 
 fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>, String), Error> {
@@ -69,9 +69,9 @@ fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>,
 fn separate_target(view_string: String) -> Result<(String, String), Error> {
     if let Some(target_len) = view_string.find('\n') {
         let target_string = &view_string[..target_len];
-        let template_string = &view_string[target_len+1..]; // +1 to clear out the remaining \n
+        let html_string = &view_string[target_len+1..]; // +1 to clear out the remaining \n
 
-        return Ok((target_string.to_owned(), template_string.to_owned()));
+        return Ok((target_string.to_owned(), html_string.to_owned()));
     }
 
     Err(Error::new(ErrorKind::InvalidInput, "Failed to build due to missing frontmatter"))
