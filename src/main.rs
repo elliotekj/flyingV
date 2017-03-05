@@ -3,6 +3,7 @@
 #[macro_use] extern crate serde_json;
 extern crate dotenv;
 extern crate globset;
+extern crate notify;
 extern crate pulldown_cmark as cmark;
 extern crate regex;
 extern crate serde;
@@ -48,8 +49,13 @@ mod io;
 mod parser;
 mod utils;
 mod views;
+mod watcher;
 
 fn main() {
     dotenv().ok();
     generator::generate();
+
+    if let Err(e) = watcher::watch() {
+        println!("Failed to start the file watcher: {}", e);
+    }
 }
