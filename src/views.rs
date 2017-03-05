@@ -27,15 +27,23 @@ pub fn get_tera() -> Tera {
     tera
 }
 
+pub fn get_path() -> String {
+    format!("{}/views", &THEME_PATH.as_str())
+}
+
+pub fn get_tmp_path() -> String {
+    format!("{}/__tmp__", &THEME_PATH.as_str())
+}
+
 pub fn get_data() -> HashMap<String, View> {
     // key: the path in which Tera should look for the view
     // value: a glob ← any file in the contents path that matches that glob
     // should be rendered with the view passed as the key.
     let mut path_data = HashMap::new();
 
-    let views_dir = PathBuf::from(&THEME_PATH.as_str()).join("views");
-    let tmp_dir = PathBuf::from(&THEME_PATH.as_str()).join("__tmp__");
-    build_tmp_dir(&tmp_dir);
+    let views_dir = PathBuf::from(&*VIEWS_PATH);
+    let tmp_views_dir = PathBuf::from(&*VIEWS_TMP_PATH);
+    build_tmp_views_dir();
 
     let views_dir_walker = WalkDir::new(views_dir).into_iter();
 
@@ -49,8 +57,8 @@ pub fn get_data() -> HashMap<String, View> {
             let file = io::read(entry.path());
             let view = parser::view(file).unwrap();
             let path_stem = entry.path().file_stem().unwrap().to_str().unwrap();
-            let tera_path_str = format!("{}/{}.html", &tmp_dir.to_str().unwrap()[THEME_PATH.len()+1..], path_stem);
-            let tmp_path_str = format!("{}/{}.html", tmp_dir.to_str().unwrap(), path_stem);
+            let tera_path_str = format!("{}/{}.html", &tmp_views_dir.to_str().unwrap()[THEME_PATH.len()+1..], path_stem);
+            let tmp_path_str = format!("{}/{}.html", tmp_views_dir.to_str().unwrap(), path_stem);
 
             io::simple_write(Path::new(&tmp_path_str), view.html.as_str());
             path_data.insert(tera_path_str.to_string(), view);
@@ -58,13 +66,14 @@ pub fn get_data() -> HashMap<String, View> {
     }
 
     path_data
-    // TODO: destroy_tmp_dir(&tmp_views_dir);
 }
 
-fn build_tmp_dir(path: &PathBuf) {
-    let _ = fs::create_dir_all(path);
+fn build_tmp_views_dir() {
+    let tmp_views_dir = PathBuf::from(&*VIEWS_TMP_PATH);
+    let _ = fs::create_dir_all(tmp_views_dir);
 }
 
-// fn destroy_tmp_dir(path: &PathBuf) {
-//     let _ = fs::remove_dir_all(&path);
-// }
+pub fn destroy_tmp_views_dir() {
+    let tmp_views_dir = PathBuf::from(&*VIEWS_TMP_PATH);
+    let _ = fs::remove_dir_all(tmp_views_dir);
+}

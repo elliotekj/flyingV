@@ -78,6 +78,8 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
             }
         }
     }
+
+    views::destroy_tmp_views_dir();
 }
 
 fn render(page_context: Context, view_path_str: &str) -> Option<String> {
