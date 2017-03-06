@@ -12,14 +12,15 @@ pub fn get_tera() -> Tera {
 
     for entry in theme_dir_walker {
         let entry = entry.unwrap();
-        let path = entry.path();
-        let path_str = path.to_str().unwrap().to_string();
+        let entry_path = entry.path();
+        let entry_path_buf = entry_path.to_path_buf();
+        let entry_path_str = entry_path.to_str().unwrap().to_string();
 
-        if path.is_file() {
-            let tera_path_str = &path_str[THEME_PATH.len()+1..]; // +1 removes the leftover `/`
-            if utils::is_hidden_file(&entry) || !utils::is_html_file(&entry) || tera_path_str.starts_with("views/") { continue; }
+        if entry_path.is_file() {
+            let tera_path_str = &entry_path_str[THEME_PATH.len()+1..]; // +1 removes the leftover `/`
+            if utils::is_hidden_file(&entry_path_buf) || !utils::is_html_file(&entry_path_buf) || tera_path_str.starts_with("views/") { continue; }
 
-            let _ = tera.add_template_file(entry.path().to_owned(), Some(&tera_path_str.to_owned()));
+            let _ = tera.add_template_file(entry_path.to_owned(), Some(&tera_path_str.to_owned()));
         }
     }
 
@@ -49,14 +50,15 @@ pub fn get_data() -> HashMap<String, View> {
 
     for entry in views_dir_walker {
         let entry = entry.unwrap();
-        let path = entry.path();
+        let entry_path = entry.path();
+        let entry_path_buf = entry_path.to_path_buf();
 
-        if path.is_file() {
-            if utils::is_hidden_file(&entry) || !utils::is_html_file(&entry) { continue; }
+        if entry_path.is_file() {
+            if utils::is_hidden_file(&entry_path_buf) || !utils::is_html_file(&entry_path_buf) { continue; }
 
-            let file = io::read(entry.path());
+            let file = io::read(entry_path);
             let view = parser::view(file).unwrap();
-            let path_stem = entry.path().file_stem().unwrap().to_str().unwrap();
+            let path_stem = entry_path.file_stem().unwrap().to_str().unwrap();
             let tera_path_str = format!("{}/{}.html", &tmp_views_dir.to_str().unwrap()[THEME_PATH.len()+1..], path_stem);
             let tmp_path_str = format!("{}/{}.html", tmp_views_dir.to_str().unwrap(), path_stem);
 

@@ -18,16 +18,18 @@ fn map_sites_content() -> HashMap<String, Page> {
     let content_dir_walker = WalkDir::new(content_dir).into_iter().filter_map(|e| e.ok());
 
     for entry in content_dir_walker {
-        if utils::is_hidden_file(&entry) || !utils::is_valid_file_format(&entry) { continue; }
+        let entry_path = entry.path();
+        let entry_path_buf = entry_path.to_path_buf();
+        if utils::is_hidden_file(&entry_path_buf) || !utils::is_valid_file_format(&entry_path_buf) { continue; }
 
-        let file_path_str = &entry.path().to_str().unwrap()[CONTENT_PATH.len()+1..]; // +1 removes the leftover `/`
-        let file_contents = io::read(entry.path());
+        let file_path_str = &entry_path.to_str().unwrap()[CONTENT_PATH.len()+1..]; // +1 removes the leftover `/`
+        let file_contents = io::read(entry_path);
 
-        if let Ok((frontmatter, page_content)) = parser::page(file_contents, utils::is_markdown_file(&entry)) {
+        if let Ok((frontmatter, page_content)) = parser::page(file_contents, utils::is_markdown_file(&entry_path.to_path_buf())) {
             let page = Page {
                 frontmatter: frontmatter,
                 content: page_content,
-                original_path_string: entry.path().to_str().unwrap().to_string(),
+                original_path_string: entry_path.to_str().unwrap().to_string(),
             };
 
             content.insert(file_path_str.to_string(), page);

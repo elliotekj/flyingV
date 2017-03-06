@@ -37,4 +37,7 @@ pub fn watch() -> notify::Result<()> {
 }
 
 fn on_content_change(path: PathBuf) {
+    if utils::is_hidden_file(&path) { return; }
+
+    generator::generate();
 }
