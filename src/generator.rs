@@ -29,7 +29,7 @@ fn map_sites_content() -> HashMap<String, Page> {
             let page = Page {
                 frontmatter: frontmatter,
                 content: page_content,
-                original_path_string: entry_path.to_str().unwrap().to_string(),
+                url: get_url(file_path_str),
             };
 
             content.insert(file_path_str.to_string(), page);
@@ -49,6 +49,20 @@ fn get_sites_context() -> Context {
     tera_context.add("site", &site);
 
     tera_context
+}
+
+fn get_url(path_str: &str) -> String {
+    let file_path = Path::new(path_str);
+    let file_parent = file_path.parent().unwrap().to_str().unwrap();
+    let file_stem = file_path.file_stem().unwrap().to_str().unwrap();
+
+    if file_parent == "" && file_stem == "index" {
+        String::from("/")
+    } else if file_parent == "" {
+        format!("/{}", file_stem)
+    } else {
+        format!("/{}/{}", file_parent, file_stem)
+    }
 }
 
 fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: Context) {
@@ -75,7 +89,7 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
                 }
 
                 if let Some(rendered) = render(page_context, view.0) {
-                    io::write(Path::new(&page.1.original_path_string), rendered);
+                    io::write_page(&page.1.url, rendered);
                 }
             }
         }

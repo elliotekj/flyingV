@@ -22,7 +22,7 @@ use tera::Tera;
 pub struct Page {
     pub frontmatter: Value,
     pub content: String,
-    pub original_path_string: String,
+    pub url: String,
 }
 
 #[derive(Debug)]

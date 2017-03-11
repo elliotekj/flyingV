@@ -1,6 +1,6 @@
 use std::fs::{self, File};
 use std::io::{Read, BufReader, Write, BufWriter};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use super::*;
 
 pub fn read(path: &Path) -> String {
@@ -12,29 +12,19 @@ pub fn read(path: &Path) -> String {
     contents
 }
 
-pub fn write(path: &Path, contents: String) {
-    // Get the path components:
+pub fn write_page(url: &str, contents: String) {
     let build_path_str = &BUILD_PATH.as_str();
-    let file_path_str = &path.to_str().unwrap()[CONTENT_PATH.len()..];
+    let mut file_path_string = format!("{}{}", build_path_str, url);
 
-    // Build the dir tree for the file:
-    let file_parent = Path::new(file_path_str).parent().unwrap();
-    let file_stem = path.file_stem().unwrap();
-    let file_tree: PathBuf;
-
-    // Write the dir tree for the file:
-    if file_parent == Path::new("/") && file_stem == "index" {
-        let file_tree_str = format!("{}{}/index.html", build_path_str, file_parent.to_str().unwrap());
-        file_tree = PathBuf::from(&file_tree_str);
-        let _ = fs::create_dir_all(Path::new(build_path_str));
+    if url == "/" {
+        let _ = fs::create_dir_all(Path::new(&file_path_string));
+        file_path_string.push_str("index.html");
     } else {
-        let file_tree_str = format!("{}{}/{}/index.html", build_path_str, file_parent.to_str().unwrap(), file_stem.to_str().unwrap());
-        file_tree = PathBuf::from(&file_tree_str);
-        let _ = fs::create_dir_all(file_tree.parent().unwrap());
+        let _ = fs::create_dir_all(Path::new(&file_path_string));
+        file_path_string.push_str("/index.html");
     }
 
-    // Write the file:
-    let file = File::create(file_tree).expect("Unable to create the file");
+    let file = File::create(Path::new(&file_path_string)).expect("Unable to create the file");
     let mut file = BufWriter::new(file);
     file.write_all(contents.as_bytes()).expect("Unable to write data to file");
 }
