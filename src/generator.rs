@@ -66,30 +66,28 @@ fn get_url(path_str: &str) -> String {
 }
 
 fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: Context) {
-    for view in VIEW_DATA.iter() {
-        let view_data = view.1;
-
-        for page in &mapped_site_content {
-            if view_data.target.is_match(page.0) {
+    for (view_path, view_data) in VIEW_DATA.iter() {
+        for (path_string, page) in &mapped_site_content {
+            if view_data.target.is_match(path_string) {
                 let mut page_context = tera_context.clone();
-                page_context.add("page", &page.1.frontmatter);
-                page_context.add("content", &page.1.content);
+                page_context.add("page", &page.frontmatter);
+                page_context.add("content", &page.content);
 
-                for custom_loop in &view_data.custom_loops {
-                    let glob = Glob::new(custom_loop.0).unwrap().compile_matcher();
+                for (custom_loop_glob, custom_loop_id) in &view_data.custom_loops {
+                    let glob = Glob::new(custom_loop_glob).unwrap().compile_matcher();
                     let mut loop_data = Vec::new();
 
-                    for page_data in &mapped_site_content {
-                        if glob.is_match(page_data.0) {
-                            loop_data.push(page_data.1);
+                    for (path_string, page) in &mapped_site_content {
+                        if glob.is_match(path_string) {
+                            loop_data.push(page);
                         }
                     }
 
-                    page_context.add(custom_loop.1, &loop_data.to_owned());
+                    page_context.add(custom_loop_id, &loop_data.to_owned());
                 }
 
-                if let Some(rendered) = render(page_context, view.0) {
-                    io::write_page(&page.1.url, rendered);
+                if let Some(rendered) = render(page_context, view_path) {
+                    io::write_page(&page.url, rendered);
                 }
             }
         }
