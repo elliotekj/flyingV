@@ -8,13 +8,13 @@ use std::collections::HashMap;
 use std::io::{Error, ErrorKind};
 use super::*;
 
-pub fn page(page_string: String, is_markdown: bool) -> Result<(Value, String), Error> {
-    if let Ok((frontmatter, mut content)) = separate_frontmatter(page_string) {
+pub fn page(page_string: String, is_markdown: bool) -> Result<(Value, Option<i64>, String), Error> {
+    if let Ok((parsed_frontmatter, mut content)) = separate_frontmatter(page_string) {
         if is_markdown {
             content = parse_markdown(&content);
         }
 
-        return Ok((serde_json::to_value(&frontmatter).unwrap(), content));
+        return Ok((serde_json::to_value(&parsed_frontmatter.frontmatter).unwrap(), parsed_frontmatter.timestamp, content));
     }
 
     Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a page"))
@@ -53,14 +53,14 @@ fn extract_custom_loops(html: &mut String) -> (String, HashMap<String, String>) 
     (html.to_string(), custom_loops)
 }
 
-fn separate_frontmatter(page_string: String) -> Result<(HashMap<String, String>, String), Error> {
+fn separate_frontmatter(page_string: String) -> Result<(ParsedFrontmatter, String), Error> {
     if let Some(frontmatter_len) = page_string.find("\n\n") {
         let frontmatter_string = &page_string[..frontmatter_len];
         let content = &page_string[frontmatter_len..];
-        let frontmatter = parse_frontmatter(frontmatter_string);
+        let parsed_frontmatter = parse_frontmatter(frontmatter_string);
 
-        if !frontmatter.is_empty() {
-            return Ok((frontmatter, content.to_owned()));
+        if !parsed_frontmatter.frontmatter.is_empty() {
+            return Ok((parsed_frontmatter, content.to_owned()));
         }
     }
 
@@ -78,8 +78,9 @@ fn separate_target(view_string: String) -> Result<(String, String), Error> {
     Err(Error::new(ErrorKind::InvalidInput, "Failed to build due to missing frontmatter"))
 }
 
-fn parse_frontmatter(frontmatter_string: &str) -> HashMap<String, String> {
+fn parse_frontmatter(frontmatter_string: &str) -> ParsedFrontmatter {
     let mut frontmatter = HashMap::new();
+    let mut timestamp: Option<i64> = None;
     let frontmatter_lines = frontmatter_string.lines();
 
     for line in frontmatter_lines {
@@ -92,8 +93,7 @@ fn parse_frontmatter(frontmatter_string: &str) -> HashMap<String, String> {
 
             match DateTime::parse_from_str(&datetime, "%Y-%m-%d %H:%M:%S %z") {
                 Ok(datetime) => {
-                    let timestamp = datetime.timestamp();
-                    frontmatter.insert(String::from("timestamp"), timestamp.to_string());;
+                    timestamp = Some(datetime.timestamp());
                 },
                 Err(_) => {
                     // TODO: Add a proper error here.
@@ -104,7 +104,10 @@ fn parse_frontmatter(frontmatter_string: &str) -> HashMap<String, String> {
         frontmatter.insert(key.trim().to_string(), value.trim().to_string());
     }
 
-    frontmatter
+    ParsedFrontmatter {
+        frontmatter: frontmatter,
+        timestamp: timestamp,
+    }
 }
 
 fn parse_markdown(md: &str) -> String {

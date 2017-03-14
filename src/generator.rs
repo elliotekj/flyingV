@@ -1,4 +1,5 @@
 use globset::Glob;
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use super::*;
@@ -25,11 +26,12 @@ fn map_sites_content() -> HashMap<String, Page> {
         let file_path_str = &entry_path.to_str().unwrap()[CONTENT_PATH.len()+1..]; // +1 removes the leftover `/`
         let file_contents = io::read(entry_path);
 
-        if let Ok((frontmatter, page_content)) = parser::page(file_contents, utils::is_markdown_file(&entry_path.to_path_buf())) {
+        if let Ok((frontmatter, timestamp, page_content)) = parser::page(file_contents, utils::is_markdown_file(&entry_path.to_path_buf())) {
             let page = Page {
                 frontmatter: frontmatter,
                 content: page_content,
                 url: get_url(file_path_str),
+                timestamp: timestamp,
             };
 
             content.insert(file_path_str.to_string(), page);
@@ -82,6 +84,18 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
                             loop_data.push(page);
                         }
                     }
+
+                    loop_data.sort_by(|a, b| {
+                        if a.timestamp == None {
+                            return Ordering::Greater;
+                        }
+
+                        if b.timestamp == None {
+                            return Ordering::Less;
+                        }
+
+                        a.timestamp.unwrap().cmp(&b.timestamp.unwrap())
+                    });
 
                     page_context.add(custom_loop_id, &loop_data.to_owned());
                 }

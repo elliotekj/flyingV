@@ -1,5 +1,5 @@
 title: The second example post
-time: 02:00:00
+datetime: 2017-03-05 02:00:00
 categories: Sample, Demo
 
 An h1 header

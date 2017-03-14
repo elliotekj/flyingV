@@ -1,4 +1,5 @@
-title: The first example post
+title: The sixth example post
+datetime: 2017-03-05 06:00:00
 categories: Sample, Demo
 
 An h1 header

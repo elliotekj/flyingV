@@ -24,6 +24,7 @@ pub struct Page {
     pub frontmatter: Value,
     pub content: String,
     pub url: String,
+    pub timestamp: Option<i64>,
 }
 
 #[derive(Debug)]
@@ -31,6 +32,11 @@ pub struct View {
     pub target: GlobMatcher,
     pub html: String,
     pub custom_loops: HashMap<String, String>,
+}
+
+pub struct ParsedFrontmatter {
+    pub frontmatter: HashMap<String, String>,
+    pub timestamp: Option<i64>,
 }
 
 lazy_static! {
