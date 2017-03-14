@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Elliot Jackson <elliotekj@gmail.com>"]
 
 [dependencies]
+chrono = "0.3.*"
 dotenv = "0.8.*"
 globset = "0.1.*"
 lazy_static = "0.2.*"

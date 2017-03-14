@@ -1,6 +1,7 @@
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate serde_json;
+extern crate chrono;
 extern crate dotenv;
 extern crate globset;
 extern crate notify;
@@ -39,6 +40,7 @@ lazy_static! {
     pub static ref SITE_NAME: String = env::var("SITE_NAME").unwrap();
     pub static ref TERA: Tera = views::get_tera();
     pub static ref THEME_PATH: String = env::var("THEME_PATH").unwrap();
+    pub static ref UTC_OFFSET: String = env::var("UTC_OFFSET").unwrap();
     pub static ref VIEW_DATA: HashMap<String, View> = views::get_data();
     pub static ref VIEWS_PATH: String = views::get_path();
     pub static ref VIEWS_TMP_PATH: String = views::get_tmp_path();

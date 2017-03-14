@@ -1,3 +1,4 @@
+use chrono::DateTime;
 use cmark::html::push_html;
 use cmark::Parser;
 use globset::{Glob, GlobMatcher};
@@ -82,8 +83,25 @@ fn parse_frontmatter(frontmatter_string: &str) -> HashMap<String, String> {
     let frontmatter_lines = frontmatter_string.lines();
 
     for line in frontmatter_lines {
-        let key_value: Vec<&str> = line.split(':').collect();
-        frontmatter.insert(key_value[0].trim().to_string(), key_value[1].trim().to_string());
+        let split: Vec<&str> = line.split(':').collect();
+        let key = split[0];
+        let value = split[1..].join(":");
+
+        if key == "datetime" {
+            let datetime = format!("{} {}", value, *UTC_OFFSET);
+
+            match DateTime::parse_from_str(&datetime, "%Y-%m-%d %H:%M:%S %z") {
+                Ok(datetime) => {
+                    let timestamp = datetime.timestamp();
+                    frontmatter.insert(String::from("timestamp"), timestamp.to_string());;
+                },
+                Err(_) => {
+                    // TODO: Add a proper error here.
+                },
+            }
+        }
+
+        frontmatter.insert(key.trim().to_string(), value.trim().to_string());
     }
 
     frontmatter
