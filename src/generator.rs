@@ -28,7 +28,7 @@ fn map_sites_content() -> HashMap<String, Page> {
 
         if let Ok((frontmatter, timestamp, page_content)) = parser::page(file_contents, utils::is_markdown_file(&entry_path.to_path_buf())) {
             let page = Page {
-                frontmatter: frontmatter,
+                fm: frontmatter,
                 content: page_content,
                 url: get_url(file_path_str),
                 timestamp: timestamp,
@@ -72,7 +72,7 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
         for (path_string, page) in &mapped_site_content {
             if view_data.target.is_match(path_string) {
                 let mut page_context = tera_context.clone();
-                page_context.add("page", &page.frontmatter);
+                page_context.add("page", &page.fm);
                 page_context.add("content", &page.content);
 
                 for (custom_loop_glob, custom_loop_id) in &view_data.custom_loops {

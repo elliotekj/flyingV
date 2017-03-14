@@ -21,7 +21,7 @@ use tera::Tera;
 
 #[derive(Debug, Serialize)]
 pub struct Page {
-    pub frontmatter: Value,
+    pub fm: Value, // frontmatter
     pub content: String,
     pub url: String,
     pub timestamp: Option<i64>,
@@ -35,7 +35,7 @@ pub struct View {
 }
 
 pub struct ParsedFrontmatter {
-    pub frontmatter: HashMap<String, String>,
+    pub fm: HashMap<String, String>, // frontmatter
     pub timestamp: Option<i64>,
 }
 

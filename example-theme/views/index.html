@@ -2,12 +2,14 @@
 {% extends "layouts/base.html" %}
 
 {% block content %}
-<h1>Some title</h1>
-{{ content }}
+    <h1>Some title</h1>
+    {{ content }}
 
-<hr />
+    <hr />
 
-{% for post in "20*/**/*" %}
-<h3><a href="{{ post.url }}">{{ post.frontmatter.title }}</a></h3>
-{% endfor %}
+    {% for post in "20*/**/*" %}
+        {% if loop.index < 6 %}
+            <h3><a href="{{ post.url }}">{{ post.fm.title }}</a></h3>
+        {% endif %}
+    {% endfor %}
 {% endblock content %}

@@ -14,7 +14,7 @@ pub fn page(page_string: String, is_markdown: bool) -> Result<(Value, Option<i64
             content = parse_markdown(&content);
         }
 
-        return Ok((serde_json::to_value(&parsed_frontmatter.frontmatter).unwrap(), parsed_frontmatter.timestamp, content));
+        return Ok((serde_json::to_value(&parsed_frontmatter.fm).unwrap(), parsed_frontmatter.timestamp, content));
     }
 
     Err(Error::new(ErrorKind::InvalidInput, "Failed to parse a page"))
@@ -59,7 +59,7 @@ fn separate_frontmatter(page_string: String) -> Result<(ParsedFrontmatter, Strin
         let content = &page_string[frontmatter_len..];
         let parsed_frontmatter = parse_frontmatter(frontmatter_string);
 
-        if !parsed_frontmatter.frontmatter.is_empty() {
+        if !parsed_frontmatter.fm.is_empty() {
             return Ok((parsed_frontmatter, content.to_owned()));
         }
     }
@@ -105,7 +105,7 @@ fn parse_frontmatter(frontmatter_string: &str) -> ParsedFrontmatter {
     }
 
     ParsedFrontmatter {
-        frontmatter: frontmatter,
+        fm: frontmatter,
         timestamp: timestamp,
     }
 }
