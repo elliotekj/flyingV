@@ -95,7 +95,7 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
                             return Ordering::Less;
                         }
 
-                        a.timestamp.unwrap().cmp(&b.timestamp.unwrap())
+                        b.timestamp.unwrap().cmp(&a.timestamp.unwrap())
                     });
 
                     page_context.add(custom_loop_id, &loop_data.to_owned());
