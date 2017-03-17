@@ -1,6 +1,7 @@
 use globset::Glob;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::fs;
 use std::path::{Path, PathBuf};
 use super::*;
 use tera::Context;
@@ -108,6 +109,7 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
     }
 
     views::destroy_tmp_views_dir();
+    generator::replace_build_dir();
 }
 
 fn render(page_context: Context, view_path_str: &str) -> Option<String> {
@@ -123,4 +125,11 @@ fn render(page_context: Context, view_path_str: &str) -> Option<String> {
             None
         }
     }
+}
+
+fn replace_build_dir() {
+    let build_path = PathBuf::from(&*BUILD_PATH);
+    let _ = fs::remove_dir_all(build_path);
+
+    let _ = fs::rename(format!("__{}__", &BUILD_PATH.as_str()), &BUILD_PATH.as_str());
 }

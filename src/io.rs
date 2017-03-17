@@ -13,8 +13,8 @@ pub fn read(path: &Path) -> String {
 }
 
 pub fn write_page(url: &str, contents: String) {
-    let build_path_str = &BUILD_PATH.as_str();
-    let mut file_path_string = format!("{}{}", build_path_str, url);
+    let tmp_build_path_str = format!("__{}__", &BUILD_PATH.as_str());
+    let mut file_path_string = format!("{}{}", tmp_build_path_str, url);
 
     if url == "/" {
         let _ = fs::create_dir_all(Path::new(&file_path_string));
