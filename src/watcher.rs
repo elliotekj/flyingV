@@ -14,7 +14,6 @@ pub fn watch() -> notify::Result<()> {
     let mut watcher: RecommendedWatcher = try!(Watcher::new(sender, Duration::from_secs(2)));
 
     try!(watcher.watch(Path::new(&*CONTENT_PATH), RecursiveMode::Recursive));
-    try!(watcher.watch(Path::new(&*THEME_PATH), RecursiveMode::Recursive));
 
     loop {
         match receiver.recv() {
