@@ -22,7 +22,6 @@ use serde_json::Value;
 use std::collections::HashMap;
 use std::env;
 use std::thread;
-use tera::Tera;
 
 #[derive(Debug, Serialize)]
 pub struct Page {
@@ -49,10 +48,8 @@ lazy_static! {
     pub static ref CONTENT_PATH: String = env::var("CONTENT_PATH").unwrap();
     pub static ref GLOB_FOR_LOOP_REGEX: Regex = Regex::new(r#"(\{%\sfor\s\w*\sin)\s"([^\s]*)"\s(%})"#).unwrap();
     pub static ref SITE_NAME: String = env::var("SITE_NAME").unwrap();
-    pub static ref TERA: Tera = views::get_tera();
     pub static ref THEME_PATH: String = env::var("THEME_PATH").unwrap();
     pub static ref UTC_OFFSET: String = env::var("UTC_OFFSET").unwrap();
-    pub static ref VIEW_DATA: HashMap<String, View> = views::get_data();
     pub static ref VIEWS_PATH: String = views::get_path();
     pub static ref VIEWS_TMP_PATH: String = views::get_tmp_path();
 }

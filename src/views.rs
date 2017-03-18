@@ -5,7 +5,7 @@ use super::*;
 use tera::Tera;
 use walkdir::WalkDir;
 
-pub fn get_tera() -> Tera {
+pub fn get_tera() -> Result<Tera, ()> {
     let mut tera = Tera::default();
     let theme_dir = PathBuf::from(&THEME_PATH.as_str());
     let theme_dir_walker = WalkDir::new(theme_dir).into_iter();
@@ -25,7 +25,7 @@ pub fn get_tera() -> Tera {
     }
 
     tera.autoescape_on(vec![]);
-    tera
+    Ok(tera)
 }
 
 pub fn get_path() -> String {

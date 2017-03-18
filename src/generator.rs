@@ -5,14 +5,17 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use super::*;
 use tempdir::TempDir;
-use tera::Context;
+use tera::{Tera, Context};
 use walkdir::WalkDir;
 
 pub fn generate() {
+    let view_data = views::get_data();
     let mapped_site_content = map_sites_content();
     let tera_context = get_sites_context();
 
-    render_from_views(mapped_site_content, tera_context);
+    if let Ok(tera) = views::get_tera() {
+        render_from_views(tera, view_data, mapped_site_content, tera_context);
+    };
 }
 
 fn map_sites_content() -> HashMap<String, Page> {
@@ -69,18 +72,18 @@ fn get_url(path_str: &str) -> String {
     }
 }
 
-fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: Context) {
+fn render_from_views(tera: Tera, view_data: HashMap<String, View>, mapped_site_content: HashMap<String, Page>, tera_context: Context) {
     if let Ok(tmp_build_dir) = TempDir::new("flyingv_site") {
         let tmp_build_path = tmp_build_dir.into_path();
 
-        for (view_path, view_data) in VIEW_DATA.iter() {
+        for (view_path, view_struct) in view_data.iter() {
             for (path_string, page) in &mapped_site_content {
-                if view_data.target.is_match(path_string) {
+                if view_struct.target.is_match(path_string) {
                     let mut page_context = tera_context.clone();
                     page_context.add("page", &page.fm);
                     page_context.add("content", &page.content);
 
-                    for (custom_loop_glob, custom_loop_id) in &view_data.custom_loops {
+                    for (custom_loop_glob, custom_loop_id) in &view_struct.custom_loops {
                         let glob = Glob::new(custom_loop_glob).unwrap().compile_matcher();
                         let mut loop_data = Vec::new();
 
@@ -105,7 +108,7 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
                         page_context.add(custom_loop_id, &loop_data.to_owned());
                     }
 
-                    if let Some(rendered) = render(page_context, view_path) {
+                    if let Some(rendered) = render(&tera, page_context, view_path) {
                         io::write_page(&tmp_build_path, &page.url, rendered);
                     }
                 }
@@ -117,8 +120,8 @@ fn render_from_views(mapped_site_content: HashMap<String, Page>, tera_context: C
     };
 }
 
-fn render(page_context: Context, view_path_str: &str) -> Option<String> {
-    match TERA.render(view_path_str, page_context) {
+fn render(tera: &Tera, page_context: Context, view_path_str: &str) -> Option<String> {
+    match tera.render(view_path_str, page_context) {
         Ok(html) => Some(html),
         Err(e) => {
             println!("Error: {}", e);
