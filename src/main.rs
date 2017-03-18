@@ -40,7 +40,7 @@ pub struct View {
 }
 
 pub struct ParsedFrontmatter {
-    pub fm: HashMap<String, String>, // frontmatter
+    pub fm: HashMap<String, Value>, // frontmatter
     pub timestamp: Option<i64>,
 }
 

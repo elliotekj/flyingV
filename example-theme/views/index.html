@@ -10,6 +10,10 @@
     {% for post in "20*/**/*" %}
         {% if loop.index < 6 %}
             <h3><a href="{{ post.url }}">{{ post.fm.title }}</a></h3>
+
+            {% for cat in post.fm.categories %}
+                {{ cat }}
+            {% endfor %}
         {% endif %}
     {% endfor %}
 {% endblock content %}

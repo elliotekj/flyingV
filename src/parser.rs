@@ -85,7 +85,7 @@ fn parse_frontmatter(frontmatter_string: &str) -> ParsedFrontmatter {
 
     for line in frontmatter_lines {
         let split: Vec<&str> = line.split(':').collect();
-        let key = split[0];
+        let key = split[0].trim().to_string();
         let value = split[1..].join(":");
 
         if key == "datetime" {
@@ -99,9 +99,20 @@ fn parse_frontmatter(frontmatter_string: &str) -> ParsedFrontmatter {
                     // TODO: Add a proper error here.
                 },
             }
+        } else if key == "categories" || key == "tags" {
+            let cloned_value = value.clone();
+            let split = cloned_value.split(',');
+            let mut items = Vec::new();
+
+            for s in split {
+                items.push(Value::String(s.trim().to_string()));
+            }
+
+            frontmatter.insert(key, Value::Array(items));
+            continue;
         }
 
-        frontmatter.insert(key.trim().to_string(), value.trim().to_string());
+        frontmatter.insert(key, Value::String(value.trim().to_string()));
     }
 
     ParsedFrontmatter {
