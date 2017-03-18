@@ -1,7 +1,6 @@
 use std::fs::{self, File};
 use std::io::{Read, BufReader, Write, BufWriter};
-use std::path::Path;
-use super::*;
+use std::path::{Path, PathBuf};
 
 pub fn read(path: &Path) -> String {
     let mut contents = String::new();
@@ -12,9 +11,8 @@ pub fn read(path: &Path) -> String {
     contents
 }
 
-pub fn write_page(url: &str, contents: String) {
-    let tmp_build_path_str = format!("__{}__", &BUILD_PATH.as_str());
-    let mut file_path_string = format!("{}{}", tmp_build_path_str, url);
+pub fn write_page(tmp_build_path: &PathBuf, url: &str, contents: String) {
+    let mut file_path_string = format!("{}{}", tmp_build_path.to_str().unwrap(), url);
 
     if url == "/" {
         let _ = fs::create_dir_all(Path::new(&file_path_string));

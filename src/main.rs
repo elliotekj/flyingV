@@ -9,6 +9,7 @@ extern crate notify;
 extern crate pulldown_cmark as cmark;
 extern crate regex;
 extern crate serde;
+extern crate tempdir;
 extern crate tera;
 extern crate walkdir;
 
@@ -63,7 +64,6 @@ mod watcher;
 
 fn main() {
     dotenv().ok();
-    generator::generate();
 
     let clap_config = load_yaml!("cli.yml");
     let clap_matches = App::from_yaml(clap_config).get_matches();
