@@ -1,3 +1,4 @@
+#[macro_use] extern crate clap;
 #[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate serde_json;
@@ -11,6 +12,7 @@ extern crate serde;
 extern crate tera;
 extern crate walkdir;
 
+use clap::App;
 use dotenv::dotenv;
 use globset::GlobMatcher;
 use regex::Regex;
@@ -63,7 +65,19 @@ fn main() {
     dotenv().ok();
     generator::generate();
 
-    if let Err(e) = watcher::watch() {
-        println!("Failed to start the file watcher: {}", e);
+    let clap_config = load_yaml!("cli.yml");
+    let clap_matches = App::from_yaml(clap_config).get_matches();
+
+    if clap_matches.subcommand_matches("build").is_some() {
+        generator::generate();
+    }
+
+    if clap_matches.subcommand_matches("watch").is_some() {
+        generator::generate();
+        thread::spawn(move || { server::serve(); });
+
+        if let Err(e) = watcher::watch() {
+            println!("Failed to start the file watcher: {}", e);
+        }
     }
 }
