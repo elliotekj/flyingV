@@ -1,0 +1,9 @@
+name: flying_v
+version: "0.1.0"
+author: Elliot Jackson <elliot@elliotekj.com>
+about: A Dropbox fed static site generator
+subcommands:
+  - watch:
+      about: "build, watch and serve the site on localhost:8000"
+  - build:
+      about: "build the site"
