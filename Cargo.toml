@@ -8,6 +8,7 @@ chrono = "0.3.*"
 clap = { version = "2.21.*", features = ["yaml"] }
 dotenv = "0.8.*"
 globset = "0.1.*"
+hyper = "0.10.*"
 lazy_static = "0.2.*"
 notify = "4.0.*"
 pulldown-cmark = "0.0.*"

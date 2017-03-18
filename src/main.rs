@@ -5,6 +5,7 @@
 extern crate chrono;
 extern crate dotenv;
 extern crate globset;
+extern crate hyper;
 extern crate notify;
 extern crate pulldown_cmark as cmark;
 extern crate regex;
@@ -20,6 +21,7 @@ use regex::Regex;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::env;
+use std::thread;
 use tera::Tera;
 
 #[derive(Debug, Serialize)]
@@ -58,6 +60,7 @@ lazy_static! {
 mod generator;
 mod io;
 mod parser;
+mod server;
 mod utils;
 mod views;
 mod watcher;
